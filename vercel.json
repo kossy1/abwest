@@ -2,17 +2,27 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+      "src": "project_config/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "runtime": "python3.11",
+        "installCommand": "pip install --no-cache-dir -r requirements.txt",
+        "buildCommand": "python manage.py collectstatic --noinput"
+      }
     }
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/staticfiles/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "api/index.py"
+      "dest": "project_config/wsgi.py"
     }
   ],
   "env": {
-    "MONGODB_URI": "mongodb+srv://Vercel-Admin-kossyvibes:iEPIP1TrUbmEAX56@kossyvibes.ie9cevv.mongodb.net/?retryWrites=true&w=majority"
+    "DJANGO_SETTINGS_MODULE": "project_config.settings",
+    "PYTHONUNBUFFERED": "1"
   }
 }
