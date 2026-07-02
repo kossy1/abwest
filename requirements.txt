@@ -1,13 +1,15 @@
-# Core
-Django==5.1.7
+# CORE FRAMEWORK
+Django==3.2.24              # LTS version compatible with djongo
 djangorestframework==3.14.0
-django-cors-headers==4.3.0
-python-dotenv==1.0.0
+django-cors-headers==4.3.1
+python-dotenv==1.0.1
 
-# MongoDB
-pymongo==4.6.0
-mongoengine==0.28.0
-djongo==1.3.6  # If using Django with MongoDB
+# MONGODB with Djongo
+djongo==1.3.6
+sqlparse==0.2.4              # Required for djongo
+pymongo==4.5.0
+
+# Everything else same as above...
 
 # AI/ML
 torch==2.2.0

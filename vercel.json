@@ -1,51 +1,27 @@
+// vercel.json (updated)
 {
   "version": 2,
   "builds": [
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/next",
-      "config": {
-        "distDir": ".next"
-      }
-    },
-    {
-      "src": "backend/main.py",
+      "src": "manage.py",
       "use": "@vercel/python",
       "config": {
-        "runtime": "python3.11"
+        "runtime": "python3.11",
+        "installCommand": "pip install -r requirements.txt",
+        "buildCommand": "python manage.py collectstatic --noinput"
       }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/backend/main.py"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/frontend/$1"
+      "dest": "manage.py"
     }
   ],
   "env": {
     "MONGODB_URI": "@mongodb_uri",
-    "JWT_SECRET": "@jwt_secret",
-    "OPENAI_API_KEY": "@openai_api_key"
-  },
-  "functions": {
-    "backend/main.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
-  },
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
-      ]
-    }
-  ]
+    "MONGODB_DB_NAME": "@mongodb_db_name",
+    "DJANGO_SECRET_KEY": "@django_secret_key",
+    "DEBUG": "False"
+  }
 }
