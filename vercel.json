@@ -2,19 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "project_config/wsgi.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "project_config/wsgi.py"
+      "dest": "api/index.py"
     }
   ],
   "env": {
-    "DJANGO_SETTINGS_MODULE": "project_config.settings",
-    "PYTHONPATH": "${PYTHONPATH}:.",
-    "DEBUG": "False"
+    "MONGODB_URI": "@mongodb_uri"
   }
 }
