@@ -7,8 +7,7 @@
       "config": {
         "runtime": "python3.11",
         "installCommand": "pip install -r requirements.txt",
-        "buildCommand": "python manage.py collectstatic --noinput",
-        "distDir": "staticfiles"
+        "buildCommand": "python manage.py collectstatic --noinput"
       }
     }
   ],
@@ -18,26 +17,13 @@
       "dest": "/staticfiles/$1"
     },
     {
-      "src": "/media/(.*)",
-      "dest": "/media/$1"
-    },
-    {
       "src": "/(.*)",
       "dest": "project_config/wsgi.py"
     }
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "project_config.settings",
-    "MONGODB_URI": "@mongodb_uri",
-    "MONGODB_DB_NAME": "@mongodb_db_name",
-    "DJANGO_SECRET_KEY": "@django_secret_key",
-    "DEBUG": "False",
-    "ALLOWED_HOSTS": ".vercel.app,.now.sh"
-  },
-  "functions": {
-    "project_config/wsgi.py": {
-      "memory": 1024,
-      "maxDuration": 10
-    }
+    "PYTHONPATH": "${PYTHONPATH}:.",
+    "DEBUG": "False"
   }
 }

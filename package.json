@@ -1,0 +1,11 @@
+{
+  "name": "abwest-adaptive-learning",
+  "version": "1.0.0",
+  "description": "AI-Powered Adaptive Learning Platform",
+  "scripts": {
+    "vercel-build": "python manage.py collectstatic --noinput"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

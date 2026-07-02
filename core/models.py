@@ -1,68 +1,116 @@
-# core/models.py (MongoEngine version)
-from mongoengine import Document, EmbeddedDocument, fields
+# core/models.py - PyMongo Models (No Django ORM)
+from django.db import models
 from datetime import datetime
+import json
 
-class User(Document):
-    username = fields.StringField(max_length=150, unique=True, required=True)
-    email = fields.EmailField(unique=True, required=True)
-    password_hash = fields.StringField(required=True)
-    full_name = fields.StringField(max_length=200)
-    role = fields.StringField(choices=['student', 'instructor', 'admin'], default='student')
-    enrolled_courses = fields.ListField(fields.ReferenceField('Course'))
-    learning_style = fields.StringField(choices=['visual', 'auditory', 'kinesthetic'])
-    created_at = fields.DateTimeField(default=datetime.now)
-    last_active = fields.DateTimeField(default=datetime.now)
-    
-    meta = {'collection': 'users'}
+# These are helper classes for MongoDB documents
+# They don't create Django database tables
 
-class Course(Document):
-    title = fields.StringField(max_length=200, required=True)
-    description = fields.StringField()
-    instructor = fields.ReferenceField('User')
-    difficulty_level = fields.StringField(choices=['beginner', 'intermediate', 'advanced'])
-    topics = fields.ListField(fields.StringField())
-    prerequisites = fields.ListField(fields.ReferenceField('self'))
-    estimated_duration = fields.IntField()  # in hours
-    created_at = fields.DateTimeField(default=datetime.now)
-    published = fields.BooleanField(default=False)
+class MongoModel:
+    """Base class for MongoDB documents"""
     
-    meta = {'collection': 'courses'}
+    @classmethod
+    def get_collection(cls):
+        """Get MongoDB collection for this model"""
+        from project_config.settings import mongodb_db
+        return mongodb_db[cls._collection_name]
+    
+    @classmethod
+    def find(cls, filter=None):
+        """Find documents in collection"""
+        if filter is None:
+            filter = {}
+        return cls.get_collection().find(filter)
+    
+    @classmethod
+    def find_one(cls, filter=None):
+        """Find one document"""
+        if filter is None:
+            filter = {}
+        return cls.get_collection().find_one(filter)
+    
+    @classmethod
+    def insert_one(cls, data):
+        """Insert one document"""
+        return cls.get_collection().insert_one(data)
+    
+    @classmethod
+    def update_one(cls, filter, update):
+        """Update one document"""
+        return cls.get_collection().update_one(filter, update)
+    
+    @classmethod
+    def delete_one(cls, filter):
+        """Delete one document"""
+        return cls.get_collection().delete_one(filter)
+    
+    def to_dict(self):
+        """Convert to dictionary"""
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
 
-class Question(Document):
-    course = fields.ReferenceField('Course', required=True)
-    topic = fields.StringField(required=True)
-    difficulty = fields.FloatField(min_value=0, max_value=1, required=True)
-    question_text = fields.StringField(required=True)
-    options = fields.ListField(fields.StringField(), required=True)
-    correct_answer = fields.StringField(required=True)
-    explanation = fields.StringField()
-    tags = fields.ListField(fields.StringField())
-    created_at = fields.DateTimeField(default=datetime.now)
-    times_used = fields.IntField(default=0)
-    times_correct = fields.IntField(default=0)
+class Course(MongoModel):
+    _collection_name = 'courses'
     
-    meta = {'collection': 'questions'}
+    def __init__(self, data=None):
+        if data:
+            for key, value in data.items():
+                setattr(self, key, value)
+    
+    @classmethod
+    def create(cls, title, description=None, difficulty='beginner', topics=None, instructor=None):
+        """Create a new course"""
+        data = {
+            'title': title,
+            'description': description,
+            'difficulty_level': difficulty,
+            'topics': topics or [],
+            'instructor': instructor,
+            'created_at': datetime.now().isoformat(),
+            'published': False
+        }
+        result = cls.insert_one(data)
+        return cls.find_one({'_id': result.inserted_id})
 
-class QuizAttempt(Document):
-    user = fields.ReferenceField('User', required=True)
-    course = fields.ReferenceField('Course', required=True)
-    current_ability = fields.FloatField(default=0.5)
-    questions_answered = fields.ListField(fields.DictField())
-    start_time = fields.DateTimeField(default=datetime.now)
-    end_time = fields.DateTimeField()
-    completed = fields.BooleanField(default=False)
-    final_score = fields.FloatField()
+class Question(MongoModel):
+    _collection_name = 'questions'
     
-    meta = {'collection': 'quiz_attempts'}
+    def __init__(self, data=None):
+        if data:
+            for key, value in data.items():
+                setattr(self, key, value)
+    
+    @classmethod
+    def create(cls, course_id, topic, difficulty, question_text, options, correct_answer, explanation=None):
+        """Create a new question"""
+        data = {
+            'course_id': course_id,
+            'topic': topic,
+            'difficulty': difficulty,
+            'question_text': question_text,
+            'options': options,
+            'correct_answer': correct_answer,
+            'explanation': explanation,
+            'created_at': datetime.now().isoformat(),
+            'times_used': 0,
+            'times_correct': 0
+        }
+        result = cls.insert_one(data)
+        return cls.find_one({'_id': result.inserted_id})
 
-class Progress(Document):
-    user = fields.ReferenceField('User', required=True)
-    course = fields.ReferenceField('Course', required=True)
-    modules_completed = fields.ListField(fields.StringField())
-    quiz_scores = fields.ListField(fields.FloatField())
-    average_score = fields.FloatField(default=0)
-    time_spent = fields.IntField(default=0)  # in minutes
-    last_activity = fields.DateTimeField(default=datetime.now)
-    current_streak = fields.IntField(default=0)
+class QuizAttempt(MongoModel):
+    _collection_name = 'quiz_attempts'
     
-    meta = {'collection': 'progress'}
+    @classmethod
+    def create(cls, user_id, course_id):
+        """Start a new quiz attempt"""
+        data = {
+            'user_id': user_id,
+            'course_id': course_id,
+            'current_ability': 0.5,
+            'questions_answered': [],
+            'start_time': datetime.now().isoformat(),
+            'completed': False,
+            'final_score': None
+        }
+        result = cls.insert_one(data)
+        return cls.find_one({'_id': result.inserted_id})
