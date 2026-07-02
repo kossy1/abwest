@@ -20,5 +20,10 @@
       "src": "/(.*)",
       "dest": "project_config/wsgi.py"
     }
-  ]
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "project_config.settings",
+    "PYTHONUNBUFFERED": "1",
+    "DEBUG": "False"
+  }
 }

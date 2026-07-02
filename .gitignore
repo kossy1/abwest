@@ -1,41 +1,24 @@
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-
-# Virtual Environment (THIS IS THE MAIN CULPRIT!)
 venv/
 env/
-ENV/
 .venv/
-myenv/
-
-# Python packages
-*.egg-info/
-dist/
-build/
-*.whl
-
-# Django
-*.log
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 *.db
 *.sqlite3
-db.sqlite3-journal
-staticfiles/
-media/
-mediafiles/
-
-# Vercel
-.vercel/
-.vercel_cache/
+*.log
 
 # Node.js
 node_modules/
 package-lock.json
 yarn.lock
 npm-debug.log*
+
+# Vercel
+.vercel/
+.vercel_cache/
 
 # Environment
 .env
@@ -48,39 +31,5 @@ npm-debug.log*
 *.swp
 *.swo
 .DS_Store
-
-# Large files
-*.mp4
-*.avi
-*.mov
-*.mp3
-*.wav
-*.psd
-*.ai
-*.zip
-*.tar.gz
-*.rar
-*.pkl
-*.h5
-*.pt
-*.pth
-*.onnx
-
-# Data files
-*.csv
-*.xlsx
-*.json
-*.parquet
-*.npy
-*.npz
-*.joblib
-*.dill
-*.pickle
-
-# Dataset folders
-datasets/
-data/
-samples/
-training_data/
 .vercel
 .env*

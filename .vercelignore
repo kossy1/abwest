@@ -1,94 +1,17 @@
-# Virtual Environment - THIS IS PROBABLY THE MAIN CULPRIT
 venv/
 env/
 .venv/
-myenv/
-ENV/
-env*/
-*.env/
-**/venv/**
-**/env/**
-
-# Python Cache
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-*.so
-*.dylib
-*.dll
-
-# Package Installation Files
-*.whl
-*.egg-info/
-dist/
-build/
-**/site-packages/**
-
-# Large Data & Model Files
-*.pkl
-*.h5
-*.pt
-*.pth
-*.onnx
-*.joblib
-*.dill
-*.pickle
-*.npy
-*.npz
-*.parquet
-*.csv
-*.xlsx
-*.json
-*.zip
-*.tar.gz
-*.rar
-*.7z
-
-# Media Files
-*.mp4
-*.avi
-*.mov
-*.mkv
-*.mp3
-*.wav
-*.flac
-*.psd
-*.ai
-*.tiff
-*.bmp
-
-# Django Files
 *.db
 *.sqlite3
-db.sqlite3-journal
 media/
-mediafiles/
-staticfiles/
-
-# Documentation & Tests
-docs/
-test/
-tests/
-*.md
-*.rst
-*.txt
-**/test/**
-**/tests/**
-
-# IDE & System Files
+.DS_Store
 .vscode/
 .idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-
-# Vercel Cache
-.vercel/
-.vercel_cache/
-
-# Environment Files
+*.log
 .env
-.env.local
-.env.*.local
+.git/
+.gitignore
+README.md
