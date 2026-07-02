@@ -1,12 +1,21 @@
+"""
+Django settings for the adaptive learning platform.
+Minimal configuration for Vercel deployment.
+"""
+
 import os
+import pymongo
 from pathlib import Path
 
+# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '.vercel.app,.now.sh,localhost').split(',')
+# Security
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-fallback-key-for-dev')
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app,.now.sh').split(',')
 
+# Application definition - MINIMAL
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -14,14 +23,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,6 +55,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project_config.wsgi.application'
 
+# Database - SQLite for Django's built-in apps
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -57,11 +63,56 @@ DATABASES = {
     }
 }
 
-CORS_ALLOWED_ORIGINS = ['*']
-CORS_ALLOW_ALL_ORIGINS = True
+# ============================
+# MONGODB CONNECTION (Optional for now)
+# ============================
+MONGODB_URI = os.environ.get('MONGODB_URI')
+MONGODB_DB_NAME = os.environ.get('MONGODB_DB_NAME', 'adaptive_learning')
 
+# Lazy MongoDB connection - only connects when needed
+_mongodb_client = None
+_mongodb_db = None
+
+def get_mongodb():
+    """Lazy MongoDB connection"""
+    global _mongodb_client, _mongodb_db
+    if _mongodb_client is None and MONGODB_URI:
+        try:
+            _mongodb_client = pymongo.MongoClient(
+                MONGODB_URI,
+                serverSelectionTimeoutMS=5000
+            )
+            _mongodb_db = _mongodb_client[MONGODB_DB_NAME]
+            _mongodb_db.list_collection_names()
+            print(f"✅ Connected to MongoDB: {MONGODB_DB_NAME}")
+        except Exception as e:
+            print(f"⚠️ MongoDB connection error: {e}")
+            _mongodb_client = None
+            _mongodb_db = None
+    return _mongodb_client, _mongodb_db
+
+# ============================
+# AUTHENTICATION
+# ============================
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+
+# ============================
+# STATIC FILES
+# ============================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# ============================
+# INTERNATIONALIZATION
+# ============================
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

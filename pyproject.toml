@@ -1,4 +1,0 @@
-[project]
-name = "app"
-version = "0.1.0"
-dependencies = [ "django==3.2.24", "djangorestframework==3.14.0", "django-cors-headers==4.3.1", "python-dotenv==1.0.1", "djongo==1.3.6", "sqlparse==0.2.4", "pymongo==4.5.0", "torchvision==0.17.0", "numpy==1.26.0", "pandas==2.2.0", "scikit-learn==1.4.0", "transformers==4.36.0", "openai==1.6.0", "redis==5.0.0", "pypdf2==3.0.0", "python-docx==1.1.0", "beautifulsoup4==4.12.0", "pyjwt==2.8.0", "bcrypt==4.1.0", "django-storages==1.14.0", "django-ckeditor==6.7.0" ]
