@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Admin Dashboard</h1>
+            <div class="alert alert-success">
+                <i class="fas fa-user-shield me-2"></i>Welcome, <strong>{{ user.username }}</strong>! You have admin access.
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-users" style="font-size: 2.5rem;"></i>
+                    <h5 class="card-title mt-3">Users</h5>
+                    <p class="card-text">Manage all platform users.</p>
+                    <button class="btn btn-light btn-sm">Manage</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-graduation-cap" style="font-size: 2.5rem;"></i>
+                    <h5 class="card-title mt-3">Courses</h5>
+                    <p class="card-text">Create and manage courses.</p>
+                    <button class="btn btn-light btn-sm">Manage</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 bg-warning text-dark">
+                <div class="card-body text-center">
+                    <i class="fas fa-question-circle" style="font-size: 2.5rem;"></i>
+                    <h5 class="card-title mt-3">Questions</h5>
+                    <p class="card-text">Manage quiz questions.</p>
+                    <button class="btn btn-dark btn-sm">Manage</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar" style="font-size: 2.5rem;"></i>
+                    <h5 class="card-title mt-3">Analytics</h5>
+                    <p class="card-text">View platform analytics.</p>
+                    <button class="btn btn-light btn-sm">View</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

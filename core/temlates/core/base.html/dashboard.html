@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Dashboard</h1>
+            <div class="alert alert-info">
+                <i class="fas fa-user me-2"></i>Welcome back, <strong>{{ user.username }}</strong>!
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-book-open" style="font-size: 3rem; color: #764ba2;"></i>
+                    <h5 class="card-title mt-3">My Courses</h5>
+                    <p class="card-text">Access your enrolled courses and continue learning.</p>
+                    <button class="btn btn-outline-primary">View Courses</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-question-circle" style="font-size: 3rem; color: #764ba2;"></i>
+                    <h5 class="card-title mt-3">Take a Quiz</h5>
+                    <p class="card-text">Test your knowledge with adaptive quizzes.</p>
+                    <button class="btn btn-outline-primary">Start Quiz</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line" style="font-size: 3rem; color: #764ba2;"></i>
+                    <h5 class="card-title mt-3">Progress</h5>
+                    <p class="card-text">Track your learning progress and achievements.</p>
+                    <button class="btn btn-outline-primary">View Progress</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

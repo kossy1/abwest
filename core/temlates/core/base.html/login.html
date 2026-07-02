@@ -1,0 +1,135 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<style>
+    .login-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        padding: 40px;
+        max-width: 450px;
+        margin: 0 auto;
+        animation: slideUp 0.5s ease;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .login-card h2 {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .login-card .subtitle {
+        color: #6c757d;
+        margin-bottom: 30px;
+    }
+    
+    .login-card .form-control {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        transition: border-color 0.3s;
+    }
+    
+    .login-card .form-control:focus {
+        border-color: #764ba2;
+        box-shadow: none;
+    }
+    
+    .login-card .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-weight: 600;
+        transition: transform 0.3s;
+        width: 100%;
+    }
+    
+    .login-card .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(118, 75, 162, 0.3);
+    }
+    
+    .login-card .btn-primary:active {
+        transform: translateY(0);
+    }
+</style>
+
+<div class="login-container">
+    <div class="container">
+        <div class="login-card">
+            <div class="text-center">
+                <i class="fas fa-graduation-cap" style="font-size: 3rem; color: #764ba2;"></i>
+                <h2>Welcome Back!</h2>
+                <p class="subtitle">Sign in to continue your learning journey</p>
+            </div>
+            
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="username" class="form-label fw-bold">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-2">
+                            <i class="fas fa-user text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               placeholder="Enter your username" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-bold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-2">
+                            <i class="fas fa-lock text-muted"></i>
+                        </span>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Enter your password" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="remember">
+                    <label class="form-check-label" for="remember">Remember me</label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+            </form>
+            
+            <hr class="my-4">
+            
+            <div class="text-center">
+                <p class="text-muted mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Demo credentials: <strong>admin</strong> / <strong>password123</strong>
+                </p>
+                <p class="text-muted small mt-2">
+                    <i class="fas fa-user-graduate me-1"></i>
+                    Student: <strong>student</strong> / <strong>password123</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
