@@ -3,14 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adaptive Learning Platform</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>EduAdapt - Adaptive Learning Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Custom styles will be added in static/css/style.css */
+        /* Custom styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand i {
+            color: #f093fb;
+        }
+        
+        .footer {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        
+        .footer a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer a:hover {
+            color: #fff;
+        }
+        
+        .footer .social-icons a {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            text-align: center;
+            line-height: 35px;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+        
+        .footer .social-icons a:hover {
+            background: #764ba2;
+            transform: translateY(-3px);
+        }
+        
+        /* Toast container */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+        
+        /* CSRF hidden input for JavaScript fallback */
+        #csrfToken {
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <!-- CSRF Token for JavaScript (backup) -->
+    <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -23,20 +94,52 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
+                        <!-- User is logged in -->
                         <li class="nav-item">
-                            <span class="nav-link text-white">
-                                <i class="fas fa-user me-1"></i>{{ user.username }}
-                            </span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">
-                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                             </a>
                         </li>
+                        {% if user.is_staff %}
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" href="{% url 'admin_dashboard' %}">
+                                    <i class="fas fa-user-shield me-1"></i>Admin
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'dashboard' %}">
+                                        <i class="fas fa-user me-2"></i>Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-cog me-2"></i>Settings
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     {% else %}
+                        <!-- User is not logged in -->
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">
                                 <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-light text-primary px-3 rounded-pill" href="{% url 'register' %}" style="font-weight: 600;">
+                                <i class="fas fa-user-plus me-1"></i>Sign Up
                             </a>
                         </li>
                     {% endif %}
@@ -50,6 +153,7 @@
         <div class="container mt-3">
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -61,12 +165,164 @@
     {% block content %}{% endblock %}
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
+    <footer class="footer">
         <div class="container">
-            <p class="mb-0">&copy; 2026 EduAdapt - AI Powered Adaptive Learning Platform</p>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5><i class="fas fa-graduation-cap me-2"></i>EduAdapt</h5>
+                    <p class="text-muted small">AI-Powered Adaptive Learning Platform that personalizes your learning experience with dynamic quizzes and real-time progress tracking.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        {% if not user.is_authenticated %}
+                            <li><a href="{% url 'login' %}">Login</a></li>
+                            <li><a href="{% url 'register' %}">Sign Up</a></li>
+                        {% endif %}
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Connect With Us</h5>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                    <p class="mt-3 text-muted small">
+                        <i class="fas fa-envelope me-1"></i> support@eduadapt.com<br>
+                        <i class="fas fa-phone me-1"></i> +1 (555) 123-4567
+                    </p>
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="text-center text-muted small">
+                &copy; {% now "Y" %} EduAdapt. All rights reserved. | 
+                <a href="#" class="text-muted">Privacy Policy</a> | 
+                <a href="#" class="text-muted">Terms of Service</a>
+            </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Global CSRF Token Function -->
+    <script>
+        // Global function to get CSRF token
+        function getCSRFToken() {
+            // Try cookie first
+            let cookieValue = null;
+            const name = 'csrftoken';
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            // Fallback to meta tag
+            if (!cookieValue) {
+                const metaTag = document.querySelector('meta[name="csrf-token"]');
+                if (metaTag) cookieValue = metaTag.getAttribute('content');
+            }
+            // Fallback to hidden input
+            if (!cookieValue) {
+                const input = document.getElementById('csrfToken');
+                if (input) cookieValue = input.value;
+            }
+            return cookieValue;
+        }
+        
+        // Global fetch with CSRF
+        function fetchWithCSRF(url, options = {}) {
+            const csrfToken = getCSRFToken();
+            const defaultOptions = {
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+            };
+            const mergedOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...(options.headers || {}),
+                },
+            };
+            return fetch(url, mergedOptions);
+        }
+        
+        // Global toast function
+        function showToast(type, message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-success' : 
+                            type === 'error' ? 'bg-danger' : 
+                            type === 'warning' ? 'bg-warning' : 'bg-info';
+            const icon = type === 'success' ? 'fa-check-circle' :
+                         type === 'error' ? 'fa-exclamation-circle' :
+                         type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            toast.className = `alert ${bgClass} text-white alert-dismissible fade show`;
+            toast.style.marginBottom = '10px';
+            toast.style.borderRadius = '12px';
+            toast.style.boxShadow = '0 10px 40px rgba(0,0,0,0.2)';
+            toast.style.animation = 'slideDown 0.5s ease';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas ${icon} me-2"></i>
+                    <span>${message}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.5s';
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 4000);
+        }
+        
+        // Add CSRF to all forms automatically
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(form => {
+                if (!form.querySelector('[name=csrfmiddlewaretoken]')) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'csrfmiddlewaretoken';
+                    input.value = getCSRFToken();
+                    form.prepend(input);
+                }
+            });
+        });
+        
+        console.log('✅ CSRF protection enabled globally');
+    </script>
+    <style>
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </body>
 </html>

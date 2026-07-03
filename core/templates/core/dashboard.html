@@ -1,46 +1,369 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h1 class="mb-4">Dashboard</h1>
-            <div class="alert alert-info">
-                <i class="fas fa-user me-2"></i>Welcome back, <strong>{{ user.username }}</strong>!
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        cursor: pointer;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+    .dashboard-card .card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        margin-bottom: 15px;
+    }
+    .dashboard-card .card-body {
+        padding: 25px;
+    }
+    .dashboard-card .card-body h5 {
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    .dashboard-card .card-body p {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+    .dashboard-card .card-body .btn {
+        border-radius: 50px;
+        padding: 8px 25px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .dashboard-card .card-body .btn:hover {
+        transform: translateX(5px);
+    }
+    .stat-card {
+        border: none;
+        border-radius: 14px;
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .stat-card .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+    .welcome-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 30px 35px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .welcome-section h2 {
+        font-weight: 700;
+        margin-bottom: 5px;
+        position: relative;
+        z-index: 2;
+    }
+    .welcome-section p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 2;
+    }
+    .quick-action-btn {
+        padding: 10px 20px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.15);
+        color: white;
+        border: none;
+        transition: all 0.3s;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        backdrop-filter: blur(10px);
+    }
+    .quick-action-btn:hover {
+        background: rgba(255,255,255,0.25);
+        color: white;
+        transform: translateY(-2px);
+    }
+    .recent-activity-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.3s;
+    }
+    .recent-activity-item:last-child {
+        border-bottom: none;
+    }
+    .recent-activity-item:hover {
+        padding-left: 10px;
+    }
+    .recent-activity-item .activity-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 12px;
+    }
+    .course-progress-mini {
+        margin-bottom: 15px;
+    }
+    .course-progress-mini:last-child {
+        margin-bottom: 0;
+    }
+    .course-progress-mini .progress {
+        height: 6px;
+        border-radius: 3px;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Welcome Section -->
+    <div class="welcome-section mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2>
+                    <i class="fas fa-wave-square me-2"></i>Welcome back, {{ user.first_name|default:user.username }}! 
+                    {% if user.first_name %}👋{% endif %}
+                </h2>
+                <p>Continue your learning journey and track your progress.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'student_courses' %}" class="quick-action-btn">
+                    <i class="fas fa-book-open me-1"></i>My Courses
+                </a>
+                <a href="{% url 'student_quizzes' %}" class="quick-action-btn ms-2">
+                    <i class="fas fa-question-circle me-1"></i>Quizzes
+                </a>
             </div>
         </div>
     </div>
-    
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card shadow-sm bg-primary text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Enrolled Courses</h6>
+                        <h3 class="mb-0">{{ enrolled_courses|default:"0" }}</h3>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-book"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card shadow-sm bg-success text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Quizzes Completed</h6>
+                        <h3 class="mb-0">{{ completed_quizzes|default:"0" }}</h3>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card shadow-sm bg-warning text-dark">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Average Score</h6>
+                        <h3 class="mb-0">{{ average_score|default:"0" }}%</h3>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-25 text-dark">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card stat-card shadow-sm bg-info text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Day Streak</h6>
+                        <h3 class="mb-0">🔥 {{ current_streak|default:"0" }}</h3>
+                    </div>
+                    <div class="stat-icon bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Navigation Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="dashboard-card card" onclick="window.location.href='{% url 'student_courses' %}'">
+                <div class="card-body">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h5>My Courses</h5>
+                    <p>View all your enrolled courses, track progress, and continue learning.</p>
+                    <a href="{% url 'student_courses' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i>View Courses
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+            <div class="dashboard-card card" onclick="window.location.href='{% url 'student_quizzes' %}'">
+                <div class="card-body">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h5>Quizzes</h5>
+                    <p>Take adaptive quizzes, test your knowledge, and track your performance.</p>
+                    <a href="{% url 'student_quizzes' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i>View Quizzes
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6">
+            <div class="dashboard-card card" onclick="window.location.href='{% url 'student_progress' %}'">
+                <div class="card-body">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5>Progress</h5>
+                    <p>View detailed analytics of your learning journey and achievements.</p>
+                    <a href="{% url 'student_progress' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i>View Progress
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity & Quick Actions -->
     <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-book-open" style="font-size: 3rem; color: #764ba2;"></i>
-                    <h5 class="card-title mt-3">My Courses</h5>
-                    <p class="card-text">Access your enrolled courses and continue learning.</p>
-                    <button class="btn btn-outline-primary">View Courses</button>
+        <!-- Recent Activity -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-clock me-2 text-primary"></i>Recent Activity</h6>
+                    <span class="badge bg-primary">{{ total_points|default:"0" }} Points</span>
+                </div>
+                <div class="card-body">
+                    <div class="recent-activity-item">
+                        <span class="activity-dot bg-success"></span>
+                        <span>Completed <strong>Python Basics Quiz</strong> with 90% score</span>
+                        <small class="text-muted float-end">2 hours ago</small>
+                    </div>
+                    <div class="recent-activity-item">
+                        <span class="activity-dot bg-primary"></span>
+                        <span>Started module <strong>Functions & Classes</strong> in Python course</span>
+                        <small class="text-muted float-end">5 hours ago</small>
+                    </div>
+                    <div class="recent-activity-item">
+                        <span class="activity-dot bg-warning"></span>
+                        <span>Earned <strong>"Python Master"</strong> badge</span>
+                        <small class="text-muted float-end">1 day ago</small>
+                    </div>
+                    <div class="recent-activity-item">
+                        <span class="activity-dot bg-info"></span>
+                        <span>Completed <strong>ML Concepts Quiz</strong> with 78% score</span>
+                        <small class="text-muted float-end">2 days ago</small>
+                    </div>
+                    <div class="recent-activity-item">
+                        <span class="activity-dot bg-secondary"></span>
+                        <span>Enrolled in <strong>Data Science & Analytics</strong> course</span>
+                        <small class="text-muted float-end">3 days ago</small>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-question-circle" style="font-size: 3rem; color: #764ba2;"></i>
-                    <h5 class="card-title mt-3">Take a Quiz</h5>
-                    <p class="card-text">Test your knowledge with adaptive quizzes.</p>
-                    <button class="btn btn-outline-primary">Start Quiz</button>
+
+        <!-- Quick Stats & Course Progress -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-book-open me-2 text-primary"></i>Course Progress</h6>
                 </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-chart-line" style="font-size: 3rem; color: #764ba2;"></i>
-                    <h5 class="card-title mt-3">Progress</h5>
-                    <p class="card-text">Track your learning progress and achievements.</p>
-                    <button class="btn btn-outline-primary">View Progress</button>
+                <div class="card-body">
+                    <div class="course-progress-mini">
+                        <div class="d-flex justify-content-between">
+                            <span>Python Programming</span>
+                            <span>85%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="course-progress-mini">
+                        <div class="d-flex justify-content-between">
+                            <span>Machine Learning</span>
+                            <span>60%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    <div class="course-progress-mini">
+                        <div class="d-flex justify-content-between">
+                            <span>Web Development</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="course-progress-mini">
+                        <div class="d-flex justify-content-between">
+                            <span>Data Science</span>
+                            <span>30%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: 30%;"></div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'student_courses' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>View All Courses
+                        </a>
+                        <a href="{% url 'student_quizzes' %}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-arrow-right me-1"></i>Take a Quiz
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

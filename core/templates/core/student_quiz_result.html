@@ -1,0 +1,139 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .result-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    .score-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0 auto 20px;
+        background: conic-gradient(
+            #28a745 0%,
+            #28a745 {{ result.score }}%,
+            #e9ecef {{ result.score }}%,
+            #e9ecef 100%
+        );
+    }
+    .score-circle .inner {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .score-circle .inner small {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    .question-review {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .question-review:hover {
+        background: #f8f9fa;
+    }
+    .question-review .status-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>Quiz Results
+            </h1>
+            <p class="text-muted">{{ result.quiz_title }} - {{ result.course }}</p>
+        </div>
+        <div>
+            <a href="{% url 'student_quizzes' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Quizzes
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Score Summary -->
+        <div class="col-lg-4">
+            <div class="card result-card">
+                <div class="card-body text-center p-4">
+                    <div class="score-circle">
+                        <div class="inner">
+                            {{ result.score }}%
+                            <small>Score</small>
+                        </div>
+                    </div>
+                    <div class="row g-2 mt-3">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">Correct</small>
+                                <span class="fw-bold text-success">{{ result.correct }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">Incorrect</small>
+                                <span class="fw-bold text-danger">{{ result.total|add:result.correct|add:"-" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted d-block">Time Taken</small>
+                        <span class="fw-bold">{{ result.time_taken }}</span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted d-block">Date Taken</small>
+                        <span>{{ result.date_taken|date:"M d, Y H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Review -->
+        <div class="col-lg-8">
+            <div class="card result-card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>Question Review</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for q in result.questions %}
+                        <div class="list-group-item question-review d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold me-2">Question {{ q.number }}</span>
+                                <span class="text-muted">{{ q.time }}</span>
+                            </div>
+                            <div class="status-icon bg-{% if q.status == 'correct' %}success{% else %}danger{% endif %} bg-opacity-10 text-{% if q.status == 'correct' %}success{% else %}danger{% endif %}">
+                                <i class="fas fa-{% if q.status == 'correct' %}check{% else %}times{% endif %}"></i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

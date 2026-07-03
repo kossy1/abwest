@@ -1,0 +1,488 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+    .stat-card .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+    .search-box {
+        border-radius: 25px;
+        padding: 10px 20px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s;
+    }
+    .search-box:focus {
+        border-color: #764ba2;
+        box-shadow: none;
+    }
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+    }
+    .toast-custom {
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        animation: slideDown 0.5s ease;
+    }
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- CSRF Token for AJAX -->
+    {% csrf_token %}
+    
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-user-graduate me-2 text-primary"></i>Manage Students
+            </h1>
+            <p class="text-muted">View and manage all students on the platform</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+            <button class="btn btn-primary" onclick="showToast('info', 'Add student functionality coming soon!')">
+                <i class="fas fa-user-plus me-1"></i>Add Student
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-primary text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Total Students</h6>
+                        <h3 class="mb-0">{{ total_students }}</h3>
+                    </div>
+                    <div class="icon-circle bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-success text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Active Students</h6>
+                        <h3 class="mb-0">{{ active_students }}</h3>
+                    </div>
+                    <div class="icon-circle bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-danger text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Inactive Students</h6>
+                        <h3 class="mb-0">{{ inactive_students }}</h3>
+                    </div>
+                    <div class="icon-circle bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-user-slash"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-info text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">New This Week</h6>
+                        <h3 class="mb-0">{{ new_this_week }}</h3>
+                    </div>
+                    <div class="icon-circle bg-white bg-opacity-25 text-white">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-2"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control search-box" name="search" 
+                               placeholder="Search by name, username, or email..." 
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                    {% if search_query %}
+                        <a href="{% url 'admin_students' %}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr id="student-row-{{ student.id }}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="student-avatar me-2">{{ student.username|first|upper }}</div>
+                                    <div>
+                                        <div class="fw-bold">{{ student.get_full_name|default:student.username }}</div>
+                                        <small class="text-muted">@{{ student.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ student.email|default:"<span class='text-muted'>Not set</span>" }}</td>
+                            <td>
+                                <span class="status-badge {% if student.is_active %}bg-success bg-opacity-10 text-success{% else %}bg-danger bg-opacity-10 text-danger{% endif %}" 
+                                      id="status-badge-{{ student.id }}">
+                                    <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
+                                    {% if student.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ student.date_joined|date:"M d, Y" }}</td>
+                            <td>{{ student.last_login|date:"M d, H:i"|default:"Never" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'admin_student_detail' student.id %}" class="btn btn-outline-info" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admin_student_edit' student.id %}" class="btn btn-outline-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-{% if student.is_active %}warning{% else %}success{% endif %}" 
+                                            onclick="toggleStudent({{ student.id }}, '{{ student.username|escapejs }}')" 
+                                            title="{% if student.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                        <i class="fas fa-{% if student.is_active %}pause{% else %}play{% endif %}"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="deleteStudent({{ student.id }}, '{{ student.username|escapejs }}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-users-slash fa-3x text-muted d-block mb-3"></i>
+                                <p class="text-muted mb-0">No students found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if students.has_other_pages %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Student pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if students.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ students.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in students.paginator.page_range %}
+                        <li class="page-item {% if students.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endfor %}
+                    
+                    {% if students.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ students.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+// ============================================
+// CSRF TOKEN HANDLING
+// ============================================
+
+function getCSRFToken() {
+    // Get from cookie
+    let cookieValue = null;
+    const name = 'csrftoken';
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    // Fallback to meta tag or hidden input
+    if (!cookieValue) {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) cookieValue = metaTag.getAttribute('content');
+    }
+    if (!cookieValue) {
+        const input = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (input) cookieValue = input.value;
+    }
+    return cookieValue;
+}
+
+// ============================================
+// TOAST NOTIFICATION SYSTEM
+// ============================================
+
+function showToast(type, message) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    const bgClass = type === 'success' ? 'bg-success' : 
+                    type === 'error' ? 'bg-danger' : 
+                    type === 'warning' ? 'bg-warning' : 'bg-info';
+    const icon = type === 'success' ? 'fa-check-circle' :
+                 type === 'error' ? 'fa-exclamation-circle' :
+                 type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+    
+    toast.className = `toast-custom alert ${bgClass} text-white alert-dismissible fade show`;
+    toast.style.marginBottom = '10px';
+    toast.style.borderRadius = '12px';
+    toast.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas ${icon} me-2"></i>
+            <span>${message}</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto dismiss
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s';
+            setTimeout(() => toast.remove(), 500);
+        }
+    }, 4000);
+}
+
+// ============================================
+// FETCH WITH CSRF
+// ============================================
+
+function fetchWithCSRF(url, options = {}) {
+    const csrfToken = getCSRFToken();
+    const defaultOptions = {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+    };
+    const mergedOptions = {
+        ...defaultOptions,
+        ...options,
+        headers: {
+            ...defaultOptions.headers,
+            ...(options.headers || {}),
+        },
+    };
+    return fetch(url, mergedOptions);
+}
+
+// ============================================
+// STUDENT MANAGEMENT FUNCTIONS
+// ============================================
+
+function toggleStudent(studentId, username) {
+    if (!confirm(`Are you sure you want to toggle the status of "${username}"?`)) return;
+    
+    const btn = event?.target?.closest?.('button') || document.querySelector(`button[onclick*="toggleStudent(${studentId}"]`);
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+    
+    fetchWithCSRF(`/admin/students/${studentId}/toggle/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update UI without reload
+                const badge = document.getElementById(`status-badge-${studentId}`);
+                if (badge) {
+                    const isActive = data.active;
+                    badge.className = `status-badge ${isActive ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger'}`;
+                    badge.innerHTML = `<i class="fas fa-circle me-1" style="font-size: 8px;"></i> ${isActive ? 'Active' : 'Inactive'}`;
+                }
+                // Update toggle button
+                const row = document.getElementById(`student-row-${studentId}`);
+                if (row) {
+                    const toggleBtn = row.querySelector(`button[onclick*="toggleStudent(${studentId}"]`);
+                    if (toggleBtn) {
+                        const isActive = data.active;
+                        toggleBtn.className = `btn btn-outline-${isActive ? 'warning' : 'success'}`;
+                        toggleBtn.innerHTML = `<i class="fas fa-${isActive ? 'pause' : 'play'}"></i>`;
+                        toggleBtn.title = isActive ? 'Deactivate' : 'Activate';
+                        toggleBtn.disabled = false;
+                    }
+                }
+                showToast('success', `${username} ${data.active ? 'activated' : 'deactivated'} successfully`);
+            } else {
+                showToast('error', data.error || 'Operation failed');
+                if (btn) btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showToast('error', 'Network error occurred');
+            if (btn) btn.disabled = false;
+        });
+}
+
+function deleteStudent(studentId, username) {
+    if (!confirm(`Are you sure you want to delete "${username}"? This action cannot be undone.`)) return;
+    
+    const btn = event?.target?.closest?.('button') || document.querySelector(`button[onclick*="deleteStudent(${studentId}"]`);
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+    
+    fetchWithCSRF(`/admin/students/${studentId}/delete/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove row from table
+                const row = document.getElementById(`student-row-${studentId}`);
+                if (row) {
+                    row.style.transition = 'all 0.5s';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 500);
+                }
+                showToast('success', `${username} deleted successfully`);
+            } else {
+                showToast('error', data.error || 'Deletion failed');
+                if (btn) btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showToast('error', 'Network error occurred');
+            if (btn) btn.disabled = false;
+        });
+}
+
+// ============================================
+// AUTO-CSRF FOR ALL FORMS
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Add CSRF token to all forms
+    document.querySelectorAll('form').forEach(form => {
+        if (!form.querySelector('[name=csrfmiddlewaretoken]')) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'csrfmiddlewaretoken';
+            input.value = getCSRFToken();
+            form.prepend(input);
+        }
+    });
+    
+    // Live search on Enter key
+    const searchInput = document.querySelector('.search-box');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                this.form.submit();
+            }
+        });
+    }
+});
+
+console.log('✅ CSRF protection enabled');
+</script>
+{% endblock %}

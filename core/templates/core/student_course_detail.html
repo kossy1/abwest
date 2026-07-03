@@ -1,0 +1,202 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .module-item {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .module-item:hover {
+        background: #f8f9fa;
+        transform: translateX(5px);
+    }
+    .module-item .module-status {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    .quiz-card {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s;
+    }
+    .quiz-card:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+    .progress-ring {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 700;
+        background: conic-gradient(
+            #764ba2 0%,
+            #764ba2 {{ course.progress }}%,
+            #e9ecef {{ course.progress }}%,
+            #e9ecef 100%
+        );
+    }
+    .progress-ring-inner {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{% url 'student_courses' %}" class="text-decoration-none">
+                <i class="fas fa-arrow-left me-2"></i>Back to Courses
+            </a>
+            <h1 class="display-6 fw-bold mt-2">{{ course.title }}</h1>
+            <p class="text-muted">by {{ course.instructor }}</p>
+        </div>
+        <div>
+            <span class="badge bg-{% if course.status == 'Completed' %}success{% elif course.status == 'In Progress' %}primary{% else %}warning{% endif %} fs-6">
+                {{ course.status }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Course Info -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">About This Course</h5>
+                    <p>{{ course.description }}</p>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-3 col-sm-6">
+                            <small class="text-muted d-block">Level</small>
+                            <span class="fw-bold">{{ course.level }}</span>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <small class="text-muted d-block">Modules</small>
+                            <span class="fw-bold">{{ course.modules }}</span>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <small class="text-muted d-block">Students</small>
+                            <span class="fw-bold">{{ course.enrolled_students }}</span>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <small class="text-muted d-block">Rating</small>
+                            <span class="fw-bold"><i class="fas fa-star text-warning me-1"></i>{{ course.rating }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>Course Modules</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for module in course.modules_list %}
+                        <div class="list-group-item module-item d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="module-status bg-{% if module.completed %}success{% else %}secondary{% endif %} bg-opacity-10 text-{% if module.completed %}success{% else %}secondary{% endif %} me-3">
+                                    <i class="fas fa-{% if module.completed %}check{% else %}minus{% endif %}"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ module.title }}</h6>
+                                    <small class="text-muted">{{ module.duration }}</small>
+                                </div>
+                            </div>
+                            {% if module.completed %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Progress -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Your Progress</h6>
+                    <div class="d-flex justify-content-center my-3">
+                        <div class="progress-ring">
+                            <div class="progress-ring-inner">
+                                <span>{{ course.progress }}%</span>
+                                <small class="text-muted">Complete</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">Modules</small>
+                                <span class="fw-bold">{{ course.completed_modules }}/{{ course.modules }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <small class="text-muted d-block">Quizzes</small>
+                                <span class="fw-bold">{{ course.quizzes|length }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quizzes -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-question-circle me-2 text-primary"></i>Quizzes</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for quiz in course.quizzes %}
+                        <div class="list-group-item quiz-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ quiz.title }}</h6>
+                                    <small class="text-muted">
+                                        {% if quiz.status == 'Completed' %}
+                                            Score: {{ quiz.score }}%
+                                        {% else %}
+                                            Not attempted
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% if quiz.status == 'Completed' %}
+                                    <span class="badge bg-success">{{ quiz.score }}%</span>
+                                {% else %}
+                                    <a href="{% url 'student_take_quiz' quiz.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-play me-1"></i>Start
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

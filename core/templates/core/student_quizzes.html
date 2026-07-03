@@ -1,0 +1,178 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .quiz-card {
+        border: none;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 100%;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    }
+    .quiz-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .quiz-card .quiz-header {
+        padding: 20px;
+        position: relative;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+    }
+    .stat-card {
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+    .difficulty-badge {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-question-circle me-2 text-primary"></i>Quizzes
+            </h1>
+            <p class="text-muted">Test your knowledge with adaptive quizzes</p>
+        </div>
+        <div>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="mb-1 opacity-75">Total Quizzes</h6>
+                    <h3 class="mb-0">{{ total_quizzes }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <h6 class="mb-1 opacity-75">Available</h6>
+                    <h3 class="mb-0">{{ available }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-info text-white">
+                <div class="card-body">
+                    <h6 class="mb-1 opacity-75">Completed</h6>
+                    <h3 class="mb-0">{{ completed }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card shadow-sm bg-secondary text-white">
+                <div class="card-body">
+                    <h6 class="mb-1 opacity-75">Locked</h6>
+                    <h3 class="mb-0">{{ locked }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'student_quizzes' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    <i class="fas fa-list me-1"></i>All
+                </a>
+                <a href="?status=available" class="btn {% if status_filter == 'available' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    <i class="fas fa-play me-1"></i>Available
+                </a>
+                <a href="?status=completed" class="btn {% if status_filter == 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    <i class="fas fa-check-circle me-1"></i>Completed
+                </a>
+                <a href="?status=locked" class="btn {% if status_filter == 'locked' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    <i class="fas fa-lock me-1"></i>Locked
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Grid -->
+    <div class="row g-4">
+        {% for quiz in quizzes %}
+        <div class="col-lg-4 col-md-6">
+            <div class="quiz-card card">
+                <div class="quiz-header" style="background: linear-gradient(135deg, {% cycle '#667eea,#764ba2' '#f093fb,#f5576c' '#4facfe,#00f2fe' '#43e97b,#38f9d7' '#fa709a,#fee140' %});">
+                    <div class="text-white">
+                        <h5 class="mb-1">{{ quiz.title }}</h5>
+                        <small><i class="fas fa-book me-1"></i>{{ quiz.course }}</small>
+                    </div>
+                    {% if quiz.status == 'Available' %}
+                        <span class="badge bg-success ms-auto">Available</span>
+                    {% elif quiz.status == 'Completed' %}
+                        <span class="badge bg-info ms-auto">Completed</span>
+                    {% else %}
+                        <span class="badge bg-secondary ms-auto">Locked</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small"><i class="fas fa-list me-1"></i>{{ quiz.questions }} questions</span>
+                        <span class="difficulty-badge bg-{% if quiz.difficulty == 'Beginner' %}success{% elif quiz.difficulty == 'Intermediate' %}warning{% else %}danger{% endif %} bg-opacity-10 text-{% if quiz.difficulty == 'Beginner' %}success{% elif quiz.difficulty == 'Intermediate' %}warning{% else %}danger{% endif %}">
+                            {{ quiz.difficulty }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted small"><i class="fas fa-clock me-1"></i>{{ quiz.time_limit }} min</span>
+                        {% if quiz.deadline %}
+                            <span class="text-muted small"><i class="fas fa-calendar me-1"></i>Due: {{ quiz.deadline|date:"M d" }}</span>
+                        {% endif %}
+                    </div>
+                    {% if quiz.attempts > 0 %}
+                        <div class="mt-2">
+                            <small class="text-muted">Best Score: <span class="fw-bold text-success">{{ quiz.best_score }}%</span></small>
+                            <small class="text-muted ms-2">Attempts: {{ quiz.attempts }}</small>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white border-0">
+                    {% if quiz.status == 'Available' %}
+                        <a href="{% url 'student_take_quiz' quiz.id %}" class="btn btn-primary w-100">
+                            <i class="fas fa-play me-1"></i>Start Quiz
+                        </a>
+                    {% elif quiz.status == 'Completed' %}
+                        <a href="{% url 'student_quiz_result' quiz.id %}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-chart-bar me-1"></i>View Results
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            <i class="fas fa-lock me-1"></i>Locked
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-question-circle fa-3x text-muted d-block mb-3"></i>
+                <h5>No quizzes found</h5>
+                <p class="text-muted">Check back later for new quizzes.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .analytics-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s;
+        overflow: hidden;
+    }
+    .analytics-card:hover {
+        transform: translateY(-3px);
+    }
+    .chart-container {
+        position: relative;
+        height: 200px;
+    }
+    .progress-bar-custom {
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+    }
+    .progress-bar-custom .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 1s ease;
+    }
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    .trend-up { color: #28a745; }
+    .trend-down { color: #dc3545; }
+</style>
+
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold">
+                        <i class="fas fa-chart-bar me-2 text-info"></i>Analytics Dashboard
+                    </h1>
+                    <p class="text-muted">Platform performance and learning insights</p>
+                </div>
+                <div>
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Total Users</p>
+                            <h2 class="mb-0">{{ analytics.total_users|default:"0" }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 12% increase</small>
+                        </div>
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Active Users</p>
+                            <h2 class="mb-0">{{ analytics.active_users|default:"0" }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 8% increase</small>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Courses</p>
+                            <h2 class="mb-0">{{ analytics.total_courses|default:"0" }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 5 new this month</small>
+                        </div>
+                        <div class="stat-icon bg-info bg-opacity-10 text-info">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted mb-1">Completion Rate</p>
+                            <h2 class="mb-0">{{ analytics.completion_rate|default:"78%" }}</h2>
+                            <small class="text-success"><i class="fas fa-arrow-up"></i> 5% increase</small>
+                        </div>
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Weekly Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-pie-chart me-2 text-primary"></i>Course Popularity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="courseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Stats -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>Platform Overview</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-users me-2 text-primary"></i>Total Users</span>
+                            <span class="badge bg-primary rounded-pill">{{ analytics.total_users|default:"0" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-graduation-cap me-2 text-success"></i>Total Courses</span>
+                            <span class="badge bg-success rounded-pill">{{ analytics.total_courses|default:"0" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-question-circle me-2 text-warning"></i>Total Quizzes</span>
+                            <span class="badge bg-warning rounded-pill">{{ analytics.total_quizzes|default:"0" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-user-check me-2 text-info"></i>Active Users</span>
+                            <span class="badge bg-info rounded-pill">{{ analytics.active_users|default:"0" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-chart-line me-2 text-primary"></i>Weekly Growth</span>
+                            <span class="badge bg-success rounded-pill">{{ analytics.weekly_growth|default:"12%" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card analytics-card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-star me-2 text-warning"></i>Highlights</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>🔥 Most Popular Course</span>
+                            <span class="fw-bold text-primary">{{ analytics.popular_course|default:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>🏆 Most Active User</span>
+                            <span class="fw-bold text-success">{{ analytics.most_active_user|default:"N/A" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>📈 Highest Score</span>
+                            <span class="fw-bold text-warning">{{ analytics.highest_score|default:"98%" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>✅ Average Score</span>
+                            <div class="w-50">
+                                <div class="progress-bar-custom">
+                                    <div class="progress-fill bg-success" style="width: {{ analytics.average_score|default:'85' }}%;"></div>
+                                </div>
+                            </div>
+                            <span class="fw-bold">{{ analytics.average_score|default:"85%" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>📚 Total Lessons</span>
+                            <span class="fw-bold text-info">{{ analytics.total_lessons|default:"156" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Weekly Activity Chart
+    const ctx1 = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Active Users',
+                data: [65, 78, 82, 90, 85, 55, 40],
+                borderColor: '#764ba2',
+                backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Quiz Completions',
+                data: [45, 60, 55, 70, 65, 35, 25],
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Course Popularity Chart
+    const ctx2 = document.getElementById('courseChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ['Python', 'ML', 'Web Dev', 'Data Science', 'AI'],
+            datasets: [{
+                data: [30, 25, 20, 15, 10],
+                backgroundColor: ['#764ba2', '#667eea', '#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

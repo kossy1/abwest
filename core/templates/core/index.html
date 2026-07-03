@@ -3,175 +3,1104 @@
 
 {% block content %}
 <style>
+    /* ============================================
+       LANDING PAGE STYLES
+    ============================================ */
+    
+    /* Hero Section */
     .hero-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 80px 0;
-        min-height: 70vh;
+        padding: 120px 0 80px;
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
         display: flex;
         align-items: center;
     }
     
-    .hero-section h1 {
-        font-size: 3.5rem;
-        font-weight: 700;
-        margin-bottom: 20px;
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        animation: float 20s ease-in-out infinite;
     }
     
-    .hero-section .lead {
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+        animation: float 25s ease-in-out infinite reverse;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(30px, -30px) scale(1.1); }
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-content h1 {
+        font-size: 4.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        animation: fadeInUp 1s ease;
+    }
+    
+    .hero-content h1 span {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: none;
+    }
+    
+    .hero-content p {
         font-size: 1.25rem;
         opacity: 0.9;
+        margin-bottom: 30px;
+        max-width: 600px;
+        animation: fadeInUp 1.2s ease;
     }
     
-    .feature-box {
-        padding: 30px;
-        border-radius: 10px;
-        transition: transform 0.3s;
+    .hero-buttons {
+        animation: fadeInUp 1.4s ease;
+    }
+    
+    .hero-buttons .btn {
+        padding: 14px 40px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin: 5px;
+    }
+    
+    .hero-buttons .btn-primary {
         background: white;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        height: 100%;
-    }
-    
-    .feature-box:hover {
-        transform: translateY(-5px);
-    }
-    
-    .feature-box i {
-        font-size: 2.5rem;
         color: #764ba2;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-buttons .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-buttons .btn-outline-light {
+        border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    .hero-buttons .btn-outline-light:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-3px);
+    }
+    
+    .hero-stats {
+        margin-top: 50px;
+        display: flex;
+        gap: 50px;
+        animation: fadeInUp 1.6s ease;
+    }
+    
+    .hero-stats .stat-item h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    
+    .hero-stats .stat-item p {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        margin-bottom: 0;
+    }
+    
+    .hero-image {
+        position: relative;
+        z-index: 2;
+        animation: fadeInRight 1s ease;
+    }
+    
+    .hero-image img {
+        border-radius: 20px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        max-width: 100%;
+    }
+    
+    .floating-badge {
+        position: absolute;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: floatBadge 3s ease-in-out infinite;
+        color: #333;
+        z-index: 3;
+    }
+    
+    .floating-badge-1 {
+        top: 20%;
+        left: -10%;
+        animation-delay: 0s;
+    }
+    
+    .floating-badge-2 {
+        bottom: 20%;
+        right: -5%;
+        animation-delay: 1.5s;
+    }
+    
+    @keyframes floatBadge {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    /* Features Section */
+    .features-section {
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
+    
+    .features-section .section-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
         margin-bottom: 15px;
     }
     
-    .btn-hero {
-        padding: 12px 40px;
-        font-size: 1.1rem;
-        border-radius: 50px;
-        background: white;
-        color: #764ba2;
-        font-weight: 600;
+    .features-section h2 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 15px;
     }
     
-    .btn-hero:hover {
-        transform: scale(1.05);
-        background: #f8f9fa;
+    .features-section .subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto 50px;
+    }
+    
+    .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(118, 75, 162, 0.15);
+    }
+    
+    .feature-card .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+    }
+    
+    .feature-card .icon-wrapper.purple {
+        background: linear-gradient(135deg, #667eea20, #764ba220);
         color: #764ba2;
+    }
+    
+    .feature-card .icon-wrapper.blue {
+        background: linear-gradient(135deg, #2196f320, #1976d220);
+        color: #1976d2;
+    }
+    
+    .feature-card .icon-wrapper.green {
+        background: linear-gradient(135deg, #4caf5020, #2e7d3220);
+        color: #2e7d32;
+    }
+    
+    .feature-card .icon-wrapper.orange {
+        background: linear-gradient(135deg, #ff980020, #e6510020);
+        color: #e65100;
+    }
+    
+    .feature-card .icon-wrapper.red {
+        background: linear-gradient(135deg, #f4433620, #c6282820);
+        color: #c62828;
+    }
+    
+    .feature-card .icon-wrapper.teal {
+        background: linear-gradient(135deg, #00968820, #00695c20);
+        color: #00695c;
+    }
+    
+    .feature-card h4 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .feature-card p {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+    
+    .feature-card .learn-more {
+        display: inline-block;
+        margin-top: 15px;
+        color: #764ba2;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card .learn-more:hover {
+        transform: translateX(5px);
+    }
+    
+    /* How It Works Section */
+    .how-it-works {
+        padding: 80px 0;
+        background: white;
+    }
+    
+    .step-card {
+        text-align: center;
+        padding: 30px;
+        position: relative;
+    }
+    
+    .step-number {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+    
+    .step-number::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        right: -5px;
+        bottom: -5px;
+        border-radius: 50%;
+        border: 2px solid rgba(118, 75, 162, 0.2);
+    }
+    
+    .step-card h5 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .step-card p {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+    
+    .step-connector {
+        position: absolute;
+        top: 45px;
+        right: -50%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        opacity: 0.3;
+    }
+    
+    @media (max-width: 768px) {
+        .step-connector {
+            display: none;
+        }
+    }
+    
+    /* Courses Preview Section */
+    .courses-preview {
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
+    
+    .course-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .course-card .course-image {
+        height: 180px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        position: relative;
+    }
+    
+    .course-card .course-image .course-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+    
+    .course-card .course-body {
+        padding: 20px;
+    }
+    
+    .course-card .course-body h5 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .course-card .course-body p {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    .course-card .course-meta {
+        display: flex;
+        gap: 20px;
+        font-size: 0.85rem;
+        color: #6c757d;
+        padding-top: 15px;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .course-card .course-meta i {
+        margin-right: 5px;
+    }
+    
+    /* Testimonials Section */
+    .testimonials {
+        padding: 80px 0;
+        background: white;
+    }
+    
+    .testimonial-card {
+        background: #f8f9fa;
+        padding: 30px;
+        border-radius: 20px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+    
+    .testimonial-card .stars {
+        color: #ffc107;
+        margin-bottom: 15px;
+    }
+    
+    .testimonial-card blockquote {
+        font-style: italic;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .testimonial-card .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .testimonial-card .testimonial-author .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .testimonial-card .testimonial-author .author-info h6 {
+        font-weight: 700;
+        margin-bottom: 2px;
+    }
+    
+    .testimonial-card .testimonial-author .author-info small {
+        color: #6c757d;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .cta-section h2 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .cta-section p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto 30px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .cta-section .btn {
+        padding: 14px 50px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 2;
+        background: white;
+        color: #764ba2;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .cta-section .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Animations */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+    
+    .animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Responsive */
+    @media (max-width: 991px) {
+        .hero-content h1 {
+            font-size: 3rem;
+        }
+        
+        .hero-stats {
+            gap: 30px;
+        }
+        
+        .hero-stats .stat-item h3 {
+            font-size: 1.8rem;
+        }
+        
+        .floating-badge {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 80px 0 60px;
+            min-height: auto;
+        }
+        
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-content p {
+            font-size: 1rem;
+        }
+        
+        .hero-stats {
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .hero-stats .stat-item {
+            text-align: center;
+            flex: 1 1 100px;
+        }
+        
+        .features-section h2 {
+            font-size: 2rem;
+        }
+        
+        .cta-section h2 {
+            font-size: 2rem;
+        }
     }
 </style>
 
-<!-- Hero Section -->
+<!-- ============================================
+     HERO SECTION
+============================================ -->
 <section class="hero-section">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-8 mx-auto text-center">
-                <h1>Welcome to EduAdapt</h1>
-                <p class="lead">
-                    An AI-Powered Adaptive Learning Platform that personalizes your learning experience
-                    with dynamic quizzes and real-time progress tracking.
+            <div class="col-lg-6 hero-content">
+                <div class="mb-3">
+                    <span class="badge bg-white bg-opacity-20 text-white px-3 py-2 rounded-pill">
+                        <i class="fas fa-robot me-2"></i>AI-Powered Learning
+                    </span>
+                </div>
+                <h1>
+                    Transform Your<br>
+                    <span>Learning Journey</span>
+                </h1>
+                <p>
+                    Experience personalized education with adaptive quizzes,
+                    real-time progress tracking, and AI-powered recommendations
+                    tailored just for you.
                 </p>
-                <div class="mt-4">
+                <div class="hero-buttons">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard' %}" class="btn btn-hero">
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary">
                             <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
                         </a>
                     {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-hero">
-                            <i class="fas fa-rocket me-2"></i>Get Started
+                        <a href="{% url 'login' %}" class="btn btn-primary">
+                            <i class="fas fa-rocket me-2"></i>Get Started Free
+                        </a>
+                        <a href="#features" class="btn btn-outline-light">
+                            <i class="fas fa-play-circle me-2"></i>See How It Works
                         </a>
                     {% endif %}
                 </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <h3>10K+</h3>
+                        <p>Active Learners</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>50+</h3>
+                        <p>Expert Courses</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>95%</h3>
+                        <p>Satisfaction Rate</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 hero-image d-none d-lg-block">
+                <div style="position: relative;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23667eea'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='white' font-size='24' font-family='Arial' dy='.3em'%3EAdaptive Learning%3C/text%3E%3C/svg%3E" 
+                         alt="Learning Platform" 
+                         class="img-fluid rounded-4 shadow-lg">
+                    <div class="floating-badge floating-badge-1">
+                        <i class="fas fa-trophy text-warning fa-2x"></i>
+                        <div>
+                            <strong>Top Performer</strong>
+                            <small class="d-block text-muted">98% completion rate</small>
+                        </div>
+                    </div>
+                    <div class="floating-badge floating-badge-2">
+                        <i class="fas fa-brain text-primary fa-2x"></i>
+                        <div>
+                            <strong>AI Powered</strong>
+                            <small class="d-block text-muted">Personalized paths</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5 bg-light">
+<!-- ============================================
+     FEATURES SECTION
+============================================ -->
+<section class="features-section" id="features">
     <div class="container">
-        <h2 class="text-center mb-5">Why Choose EduAdapt?</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-box text-center">
-                    <i class="fas fa-robot"></i>
-                    <h4>AI-Powered Learning</h4>
-                    <p>Adaptive learning paths powered by artificial intelligence that adjust to your pace.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-box text-center">
-                    <i class="fas fa-question-circle"></i>
-                    <h4>Dynamic Quizzes</h4>
-                    <p>Interactive quizzes that adapt difficulty based on your performance in real-time.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-box text-center">
-                    <i class="fas fa-chart-line"></i>
-                    <h4>Real-Time Progress</h4>
-                    <p>Track your learning journey with detailed analytics and progress insights.</p>
-                </div>
-            </div>
+        <div class="text-center">
+            <span class="section-badge">Features</span>
+            <h2>Why Choose <span style="color: #764ba2;">EduAdapt</span>?</h2>
+            <p class="subtitle">
+                Discover the powerful features that make learning personalized,
+                engaging, and effective for everyone.
+            </p>
         </div>
         
-        <div class="row g-4 mt-3">
-            <div class="col-md-4">
-                <div class="feature-box text-center">
-                    <i class="fas fa-book"></i>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="feature-card">
+                    <div class="icon-wrapper purple">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>AI-Powered Learning</h4>
+                    <p>
+                        Adaptive learning paths powered by artificial intelligence
+                        that adjust to your pace and learning style.
+                    </p>
+                    <a href="#" class="learn-more">
+                        Learn More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="feature-card">
+                    <div class="icon-wrapper blue">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h4>Dynamic Quizzes</h4>
+                    <p>
+                        Interactive quizzes that adapt difficulty based on your
+                        performance in real-time.
+                    </p>
+                    <a href="#" class="learn-more">
+                        Learn More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="feature-card">
+                    <div class="icon-wrapper green">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Real-Time Progress</h4>
+                    <p>
+                        Track your learning journey with detailed analytics and
+                        progress insights.
+                    </p>
+                    <a href="#" class="learn-more">
+                        Learn More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="feature-card">
+                    <div class="icon-wrapper orange">
+                        <i class="fas fa-book"></i>
+                    </div>
                     <h4>Multiple Courses</h4>
-                    <p>Access a wide range of courses from beginner to advanced levels.</p>
+                    <p>
+                        Access a wide range of courses from beginner to advanced
+                        levels across various subjects.
+                    </p>
+                    <a href="#" class="learn-more">
+                        Learn More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="feature-box text-center">
-                    <i class="fas fa-trophy"></i>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="feature-card">
+                    <div class="icon-wrapper red">
+                        <i class="fas fa-trophy"></i>
+                    </div>
                     <h4>Gamification</h4>
-                    <p>Earn badges, track streaks, and compete on leaderboards.</p>
+                    <p>
+                        Earn badges, track streaks, and compete on leaderboards
+                        to stay motivated.
+                    </p>
+                    <a href="#" class="learn-more">
+                        Learn More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="feature-box text-center">
-                    <i class="fas fa-users"></i>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="feature-card">
+                    <div class="icon-wrapper teal">
+                        <i class="fas fa-users"></i>
+                    </div>
                     <h4>Community Learning</h4>
-                    <p>Connect with peers and instructors for collaborative learning.</p>
+                    <p>
+                        Connect with peers and instructors for collaborative
+                        learning and support.
+                    </p>
+                    <a href="#" class="learn-more">
+                        Learn More <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Call to Action -->
-<section class="py-5" style="background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); color: white;">
-    <div class="container text-center">
+<!-- ============================================
+     HOW IT WORKS SECTION
+============================================ -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge" style="background: #6c757d;">How It Works</span>
+            <h2>Start Learning in <span style="color: #764ba2;">3 Simple Steps</span></h2>
+            <p class="subtitle">
+                Get started with EduAdapt and transform your learning experience
+                in just minutes.
+            </p>
+        </div>
+        
+        <div class="row position-relative">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-connector"></div>
+                    <h5>Create Account</h5>
+                    <p>
+                        Sign up for free and create your learning profile.
+                        Choose your interests and goals.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 animate-on-scroll">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-connector"></div>
+                    <h5>Take Assessment</h5>
+                    <p>
+                        Complete a quick adaptive assessment to determine your
+                        current knowledge level.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 animate-on-scroll">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h5>Start Learning</h5>
+                    <p>
+                        Begin your personalized learning journey with courses
+                        and quizzes tailored for you.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     COURSES PREVIEW SECTION
+============================================ -->
+<section class="courses-preview">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge">Popular Courses</span>
+            <h2>Explore Our <span style="color: #764ba2;">Top Courses</span></h2>
+            <p class="subtitle">
+                Choose from a wide variety of courses designed to help you
+                achieve your learning goals.
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="course-card">
+                    <div class="course-image">
+                        <span class="course-badge">
+                            <i class="fas fa-fire me-1"></i>Popular
+                        </span>
+                    </div>
+                    <div class="course-body">
+                        <h5>Python Programming</h5>
+                        <p>Learn Python from scratch with hands-on projects and real-world applications.</p>
+                        <div class="course-meta">
+                            <span><i class="fas fa-users"></i>45 students</span>
+                            <span><i class="fas fa-clock"></i>12 hrs</span>
+                            <span><i class="fas fa-signal"></i>Beginner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="course-card">
+                    <div class="course-image" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                        <span class="course-badge">
+                            <i class="fas fa-star me-1"></i>Trending
+                        </span>
+                    </div>
+                    <div class="course-body">
+                        <h5>Machine Learning Fundamentals</h5>
+                        <p>Introduction to ML concepts, algorithms, and practical implementations.</p>
+                        <div class="course-meta">
+                            <span><i class="fas fa-users"></i>32 students</span>
+                            <span><i class="fas fa-clock"></i>15 hrs</span>
+                            <span><i class="fas fa-signal"></i>Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="course-card">
+                    <div class="course-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                        <span class="course-badge">
+                            <i class="fas fa-rocket me-1"></i>New
+                        </span>
+                    </div>
+                    <div class="course-body">
+                        <h5>Web Development with Django</h5>
+                        <p>Build full-stack web applications using Django and modern frameworks.</p>
+                        <div class="course-meta">
+                            <span><i class="fas fa-users"></i>28 students</span>
+                            <span><i class="fas fa-clock"></i>10 hrs</span>
+                            <span><i class="fas fa-signal"></i>Intermediate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     TESTIMONIALS SECTION
+============================================ -->
+<section class="testimonials">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-badge" style="background: #28a745;">Testimonials</span>
+            <h2>What Our <span style="color: #764ba2;">Students Say</span></h2>
+            <p class="subtitle">
+                Hear from thousands of learners who have transformed their
+                education with EduAdapt.
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <blockquote>
+                        "EduAdapt completely changed how I learn. The adaptive
+                        quizzes helped me master Python in just 4 weeks!"
+                    </blockquote>
+                    <div class="testimonial-author">
+                        <div class="avatar">JD</div>
+                        <div class="author-info">
+                            <h6>John Doe</h6>
+                            <small>Software Engineer</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 animate-on-scroll">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <blockquote>
+                        "The real-time progress tracking keeps me motivated.
+                        I've completed 12 courses and learned so much!"
+                    </blockquote>
+                    <div class="testimonial-author">
+                        <div class="avatar" style="background: linear-gradient(135deg, #f093fb, #f5576c);">SM</div>
+                        <div class="author-info">
+                            <h6>Sarah Mitchell</h6>
+                            <small>Data Scientist</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 animate-on-scroll">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <blockquote>
+                        "The AI-powered recommendations helped me discover
+                        courses I never knew I needed. Absolutely brilliant!"
+                    </blockquote>
+                    <div class="testimonial-author">
+                        <div class="avatar" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">AK</div>
+                        <div class="author-info">
+                            <h6>Alex Kim</h6>
+                            <small>ML Engineer</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     CTA SECTION
+============================================ -->
+<section class="cta-section">
+    <div class="container">
         <h2>Ready to Transform Your Learning?</h2>
-        <p class="lead">Join thousands of learners using EduAdapt to achieve their goals.</p>
-        {% if not user.is_authenticated %}
-            <a href="{% url 'login' %}" class="btn btn-light btn-lg mt-3">
+        <p>
+            Join thousands of learners who are already using EduAdapt to
+            achieve their goals and unlock their potential.
+        </p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn">
+                <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn">
                 <i class="fas fa-play me-2"></i>Start Learning Today
             </a>
         {% endif %}
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3">
-                <h3 class="text-primary">50+</h3>
-                <p>Courses Available</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="text-primary">10K+</h3>
-                <p>Active Learners</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="text-primary">95%</h3>
-                <p>Satisfaction Rate</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="text-primary">500+</h3>
-                <p>Quiz Questions</p>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- ============================================
+     ANIMATION SCRIPT
+============================================ -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+            observer.observe(el);
+        });
+        
+        // Counter animation for stats
+        const stats = document.querySelectorAll('.stat-item h3');
+        stats.forEach(stat => {
+            const text = stat.textContent;
+            if (text.includes('+')) {
+                const number = parseInt(text);
+                let current = 0;
+                const increment = number / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= number) {
+                        stat.textContent = text;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(current) + '+';
+                    }
+                }, 30);
+            }
+        });
+    });
+</script>
 {% endblock %}
